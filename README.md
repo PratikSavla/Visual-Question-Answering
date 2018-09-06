@@ -7,11 +7,10 @@ It is trained on [VQA Dataset](http://visualqa.org/download.html)
 
 1. Keras version 2.0+
 2. Tensorflow 1.2+
-3. scikit-learn
-4. Spacy version 2.0+
+3. Spacy version 2.0+
     * To upgrade & install Glove Vectors
        * python -m spacy download en_vectors_web_lg
-5. OpenCV 
+4. OpenCV 
 
 Download the pretrained model from [here](https://drive.google.com/drive/folders/1vlVDWGP_xwBaqZnFFTRwpSDriLxu-tHM?usp=sharing)
 
