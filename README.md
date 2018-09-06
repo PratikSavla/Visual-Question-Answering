@@ -16,4 +16,5 @@ It is trained on [VQA Dataset](http://visualqa.org/download.html)
 Download the pretrained model from [here](https://drive.google.com/drive/folders/1vlVDWGP_xwBaqZnFFTRwpSDriLxu-tHM?usp=sharing)
 
 For running it in Google Colab [Click Here](https://colab.research.google.com/github/PratikSavla/Visual-Question-Answering/blob/master/VQA_Appplication.ipynb)
-(Note: You will still need to upload pretrained model to the colab)
+
+Training files need to be cleaned up. I will upload them shortly.
