@@ -1,6 +1,6 @@
 # Visual-Question-Answering
 
-This is RNN+CNN Visual Question Answering Model. It uses VGG16 model for image feature extraction.
+This is RNN+CNN Visual Question Answering Model. It uses VGG16 for image feature extraction.
 [VQA Dataset](http://visualqa.org/download.html) is used for training the model.
 
 ### Dependency
