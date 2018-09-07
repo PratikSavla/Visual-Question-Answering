@@ -1,4 +1,4 @@
-Download the feature from [here.](https://filebox.ece.vt.edu/~jiasenlu/codeRelease/vqaRelease/train_val/data_train-val_test.zip)
+Download preprocessed features from [here.](https://filebox.ece.vt.edu/~jiasenlu/codeRelease/vqaRelease/train_val/data_train-val_test.zip)
 
 Reference:
 #### Train and test features
