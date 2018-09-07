@@ -1,10 +1,7 @@
-
-Download and extract these files here.
-
-https://filebox.ece.vt.edu/~jiasenlu/codeRelease/vqaRelease/train_only/data_train_val.zip
+[Download the feature from here.](https://filebox.ece.vt.edu/~jiasenlu/codeRelease/vqaRelease/train_val/data_train-val_test.zip)
 
 Reference:
-#### Preprocessing
+#### Train and test features
 ```
 @misc{Lu2015,
 author = {Jiasen Lu and Xiao Lin and Dhruv Batra and Devi Parikh},
