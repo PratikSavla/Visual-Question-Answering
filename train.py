@@ -8,8 +8,9 @@ import importlib
 import numpy as np
 import json
 
+# defining model(s)
 def model():
-# Image model
+    # Image model
     model_image = Sequential()
     model_image.add(Reshape((4096,), input_shape=(4096,)))
     model_image.add(Dense(1024))
