@@ -160,8 +160,8 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
  
 # saving model
 model_json = model.to_json()
-with open("VQA_MODEL.json", "w") as json_file:
+with open("VQA/VQA_MODEL.json", "w") as json_file:
     json_file.write(model_json)
 # saving weights
-model.save_weights("VQA_MODEL_WEIGHTS.hdf5")
+model.save_weights("VQA/VQA_MODEL_WEIGHTS.hdf5")
 print("Model Saved")
