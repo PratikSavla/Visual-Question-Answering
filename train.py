@@ -54,18 +54,18 @@ def get_train_data(img_norm = 0):
     train_data = {}
     
     print('loading json file...')
-    with open('data/data_prepro.json') as data_file:
+    with open('DATA/data_prepro.json') as data_file:
         data = json.load(data_file)
     for key in data.keys():
         dataset[key] = data[key]
 
     print('loading image feature...')
-    with h5py.File('data/data_img.h5','r') as hf:
+    with h5py.File('DATA/data_img.h5','r') as hf:
         tem = hf.get('images_train')
         img_feature = np.array(tem)
         
     print('loading h5 file...')
-    with h5py.File('data/data_prepro.h5','r') as hf:
+    with h5py.File('DATA/data_prepro.h5','r') as hf:
         tem = hf.get('ques_train')
         train_data['question'] = np.array(tem)
         tem = hf.get('ques_length_train')
@@ -88,19 +88,18 @@ def get_data_test():
     test_data = {}
     
     print('loading json file...')
-    with open('data/data_prepro.json') as data_file:
+    with open('DATA/data_prepro.json') as data_file:
         data = json.load(data_file)
     for key in data.keys():
         dataset[key] = data[key]
 
     print('loading image feature...')
-    with h5py.File('data/data_img.h5','r') as hf:
-        # -----0~82459------
+    with h5py.File('DATA/data_img.h5','r') as hf:
         tem = hf.get('images_test')
         img_feature = np.array(tem)
     
     print('loading h5 file...')
-    with h5py.File('data/data_prepro.h5','r') as hf:
+    with h5py.File('DATA/data_prepro.h5','r') as hf:
         tem = hf.get('ques_test')
         test_data['question'] = np.array(tem)
         tem = hf.get('ques_length_test')
@@ -119,7 +118,7 @@ def get_data_test():
         img_feature = np.divide(img_feature, np.tile(tem,(1,2048)))
 
     nb_data_test = len(test_data[u'question'])
-    val_all_answers_dict = json.load(open('data/val_all_answers_dict.json'))
+    val_all_answers_dict = json.load(open('DATA/val_all_answers_dict.json'))
     val_answers = np.zeros(nb_data_test, dtype=np.int32)
 
     ans_to_ix = {v: k for k, v in dataset[u'ix_to_ans'].items()}
