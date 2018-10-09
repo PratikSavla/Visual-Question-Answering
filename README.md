@@ -22,6 +22,21 @@ For training the model run:
 $ python train.py
 ```
 
+### Flask web app
+
+Currently in intitial stages.
+You have to rename the image with the question you want to ask.
+For running:
+```
+$ set FLASK_APP=manage.py
+$ flask run
+```
+Answer is in the command prompt currently. If you have a way around send the pull request.
+
+Flask Example:
+![alt text](https://github.com/PratikSavla/Visual-Question-Answering/blob/master/Untitled.png)
+
+
 ### Reference
 ```
 https://github.com/VT-vision-lab/VQA_LSTM_CNN
