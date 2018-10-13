@@ -28,14 +28,9 @@ Currently in intitial stages.
 You have to rename the image with the question you want to ask.
 For running:
 ```
-$ set FLASK_APP=manage.py
+$ set FLASK_APP=hello_app.py
 $ flask run
 ```
-Answer is in the command prompt currently. If you have a way around send the pull request.
-
-Flask Example:
-![alt text](https://github.com/PratikSavla/Visual-Question-Answering/blob/master/Untitled.png)
-
 
 ### Reference
 ```
