@@ -1,5 +1,3 @@
-
-#get_ipython().run_line_magic('matplotlib', 'inline')
 import warnings
 warnings.filterwarnings("ignore")
 import os, argparse
@@ -11,21 +9,10 @@ from sklearn.externals import joblib
 from keras import backend as K
 from keras.utils.vis_utils import plot_model
 K.set_image_data_format('channels_first')
-#K.set_image_dim_ordering('th')
 
-
-# In[2]:
-
-
-# File paths for the model, all of these except the CNN Weights are 
-# provided in the repo, See the models/CNN/README.md to download VGG weights
 VQA_model_file_name      = 'VQA/VQA_MODEL.json'
 VQA_weights_file_name   = 'VQA/VQA_MODEL_WEIGHTS.hdf5'
 label_encoder_file_name  = 'VQA/FULL_labelencoder_trainval.pkl'
-
-
-# In[3]:
-
 
 def get_image_model():
     from keras.applications.vgg16 import VGG16
@@ -40,45 +27,17 @@ def get_image_model():
     model_new.compile(optimizer=sgd, loss='categorical_crossentropy')
     return model_new
 
-
-# In[4]:
-
-
 model_vgg = get_image_model()
-#model_vgg.summary()
-
-
-# In[5]:
-
 
 def get_image_features(image_file_name):
-    ''' Runs the given image_file to VGG 16 model and returns the 
-    weights (filters) as a 1, 4096 dimension vector '''
     image_features = np.zeros((1, 4096))
-    # Magic_Number = 4096  > Comes from last layer of VGG Model
-
-    # Since VGG was trained as a image of 224x224, every new image
-    # is required to go through the same transformation
     im = cv2.resize(cv2.imread(image_file_name), (224, 224))
-    im = im.transpose((2,0,1)) # convert the image to RGBA
-
-    
-    # this axis dimension is required because VGG was trained on a dimension
-    # of 1, 3, 224, 224 (first axis is for the batch size
-    # even though we are using only one image, we have to keep the dimensions consistent
-    im = np.expand_dims(im, axis=0) 
-
+    im = im.transpose((2,0,1))
+    im = np.expand_dims(im, axis=0)
     image_features[0,:] = model_vgg.predict(im)[0]
     return image_features
 
-
-# In[6]:
-
-
 def get_question_features(question):
-    ''' For a given question, a unicode string, returns the time series vector
-    with each word (token) transformed into a 300 dimension representation
-    calculated using Glove Vector '''
     word_embeddings = spacy.load('en_vectors_web_lg')
     tokens = word_embeddings(question)
     question_tensor = np.zeros((1, 30, 300))
@@ -86,16 +45,8 @@ def get_question_features(question):
         question_tensor[0,j,:] = tokens[j].vector
     return question_tensor
 
-
-# In[7]:
-
-
-##If there is any error with "en_vectors_web_lg" run the following:
-#!python -m spacy download en_vectors_web_lg
-
-
-# In[8]:
-
+import win32com.client as wincl
+speak = wincl.Dispatch("SAPI.SpVoice")
 
 def get_VQA_model(VQA_model_file_name, VQA_weights_file_name):
     vqa_model = model_from_json(open(VQA_model_file_name).read())
@@ -103,21 +54,11 @@ def get_VQA_model(VQA_model_file_name, VQA_weights_file_name):
     vqa_model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
     return vqa_model
 
-
-# In[9]:
-
-
 model_vqa = get_VQA_model(VQA_model_file_name, VQA_weights_file_name)
-#model_vqa.summary()
-
 labelencoder = joblib.load(label_encoder_file_name)
-# In[10]:
+
 import numpy as np
 import cv2
-
-cap = cv2.VideoCapture(0)
-
-
 from flask import request
 from flask import jsonify
 from flask import Flask
@@ -127,8 +68,20 @@ app = Flask(__name__)
 @app.route('/hello', methods=['POST'])
 def hello():
     message = request.get_json(force=True)
-    question = message['name']
-    
+    #question = message['name']
+    import speech_recognition as sr
+    r = sr.Recognizer()
+    with sr.Microphone() as source:                                                                       
+    	print("Ask:")                                                                                   
+    	audio = r.listen(source)
+    try:
+    	print("You asked " + r.recognize_google(audio) + " ?")
+    	question = r.recognize_google(audio)+" ?"
+    except sr.UnknownValueError:
+    	print("Could not understand the question")
+    except sr.RequestError as e:
+    	print("Could not request results; {0}".format(e))
+    cap = cv2.VideoCapture(1)
     while(True):
     	ret, frame = cap.read()
     	#question = u'what is there in the picture?'
@@ -145,10 +98,10 @@ def hello():
 	    	warnings.filterwarnings("ignore", category=DeprecationWarning)
 	    	labelencoder = joblib.load(label_encoder_file_name)
 	    	for label in reversed(np.argsort(y_output)[0,-5:]):
-	    		ans =  labelencoder.inverse_transform(label)
+	    		ans = "According to me the answer is "+labelencoder.inverse_transform(label)
+	    		speak.Speak(ans)
 	    		break
-	    	response = {'greeting':'The answer is '+ ans + '!'}
+	    	response = {'greeting':question+'\n'+ ans + '.'}
 	    	break
-    #cap.release()
     cv2.destroyAllWindows()
     return jsonify(response)
