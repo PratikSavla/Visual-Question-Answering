@@ -69,10 +69,17 @@ app = Flask(__name__)
 def hello():
     message = request.get_json(force=True)
     #question = message['name']
+    question = u'what is there in the picture?'
     import speech_recognition as sr
     r = sr.Recognizer()
-    with sr.Microphone() as source:                                                                       
-    	print("Ask:")                                                                                   
+    try:
+    	mic = sr.Microphone(device_index=2)
+    	with mic as source:
+    		print("Ask the question:")                                                                                   
+    		audio = r.listen(source)
+    except sr.UnknownValueError:
+    	with sr.Microphone() as source:                                                                       
+    		print("Ask the question:")                                                                                   
     	audio = r.listen(source)
     try:
     	print("You asked " + r.recognize_google(audio) + " ?")
@@ -81,7 +88,7 @@ def hello():
     	print("Could not understand the question")
     except sr.RequestError as e:
     	print("Could not request results; {0}".format(e))
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     while(True):
     	ret, frame = cap.read()
     	#question = u'what is there in the picture?'
@@ -105,3 +112,8 @@ def hello():
 	    	break
     cv2.destroyAllWindows()
     return jsonify(response)
+
+if __name__=='__main__':
+   # manager.run()
+   app.run(debug=True)
+   #app.run(debug=True,host='192.168.0.11')
