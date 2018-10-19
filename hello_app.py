@@ -72,44 +72,47 @@ def hello():
     question = u'what is there in the picture?'
     import speech_recognition as sr
     r = sr.Recognizer()
-    try:
-    	mic = sr.Microphone(device_index=2)
-    	with mic as source:
-    		print("Ask the question:")                                                                                   
-    		audio = r.listen(source)
-    except sr.UnknownValueError:
-    	with sr.Microphone() as source:                                                                       
-    		print("Ask the question:")                                                                                   
-    	audio = r.listen(source)
-    try:
-    	print("You asked " + r.recognize_google(audio) + " ?")
-    	question = r.recognize_google(audio)+" ?"
-    except sr.UnknownValueError:
-    	print("Could not understand the question")
-    except sr.RequestError as e:
-    	print("Could not request results; {0}".format(e))
-    cap = cv2.VideoCapture(0)
+    #try:
+   # 	mic = sr.Microphone(device_index=2)
+    #	with mic as source:
+   # 		print("Ask the question:")                                                                                   
+    #		audio = r.listen(source)
+    #except sr.UnknownValueError:
+
+    cap = cv2.VideoCapture(1)
     while(True):
     	ret, frame = cap.read()
     	#question = u'what is there in the picture?'
     	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     	cv2.imshow('frame',gray)
     	if cv2.waitKey(1) & 0xFF == ord('c'):
-	    	image_features = np.zeros((1, 4096))
-	    	im = cv2.resize(frame, (224, 224))
-	    	im = im.transpose((2,0,1))
-	    	im = np.expand_dims(im, axis=0) 
-	    	image_features[0,:] = model_vgg.predict(im)[0]
-	    	question_features = get_question_features(question)
-	    	y_output = model_vqa.predict([question_features, image_features])
-	    	warnings.filterwarnings("ignore", category=DeprecationWarning)
-	    	labelencoder = joblib.load(label_encoder_file_name)
-	    	for label in reversed(np.argsort(y_output)[0,-5:]):
-	    		ans = "According to me the answer is "+labelencoder.inverse_transform(label)
-	    		speak.Speak(ans)
-	    		break
-	    	response = {'greeting':question+'\n'+ ans + '.'}
-	    	break
+            
+            image_features = np.zeros((1, 4096))
+            im = cv2.resize(frame, (224, 224))
+            im = im.transpose((2,0,1))
+            im = np.expand_dims(im, axis=0)
+            speak.Speak("I am ready for your question 3 2 1")
+            with sr.Microphone() as source:                                                                       
+                print("Ask the question:")                                                                                   
+                audio = r.listen(source)
+            try:
+                print("You asked " + r.recognize_google(audio) + " ?")
+                question = r.recognize_google(audio)+" ?"
+            except sr.UnknownValueError:
+                print("Could not understand the question")
+            except sr.RequestError as e:
+                print("Could not request results; {0}".format(e))
+            image_features[0,:] = model_vgg.predict(im)[0]
+            question_features = get_question_features(question)
+            y_output = model_vqa.predict([question_features, image_features])
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            labelencoder = joblib.load(label_encoder_file_name)
+            for label in reversed(np.argsort(y_output)[0,-5:]):
+                ans = "According to me the answer is "+labelencoder.inverse_transform(label)
+                speak.Speak(ans)
+                break
+            response = {'greeting':question+'\n'+ ans + '.'}
+            break
     cv2.destroyAllWindows()
     return jsonify(response)
 
