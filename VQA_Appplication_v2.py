@@ -11,11 +11,18 @@ from sklearn.externals import joblib
 from keras import backend as K
 from keras.utils.vis_utils import plot_model
 K.set_image_data_format('channels_first')
-
+#K.set_image_dim_ordering('th')
 
 import win32com.client as wincl
 speak = wincl.Dispatch("SAPI.SpVoice")
+# In[2]:
 
+#config = tf.ConfigProto( device_count = {'GPU': 1 , 'CPU': 4} ) 
+#sess = tf.Session(config=config) 
+#keras.backend.set_session(sess)
+
+# File paths for the model, all of these except the CNN Weights are 
+# provided in the repo, See the models/CNN/README.md to download VGG weights
 VQA_model_file_name      = 'VQA/VQA_MODEL.json'
 VQA_weights_file_name   = 'VQA/VQA_MODEL_WEIGHTS.hdf5'
 label_encoder_file_name  = 'VQA/FULL_labelencoder_trainval.pkl'
@@ -115,22 +122,99 @@ labelencoder = joblib.load(label_encoder_file_name)
 # import os
 # mixer.init()
 
-# import speech_recognition as sr  
+'''
 
-# # get audio from the microphone                                                                       
-# r = sr.Recognizer()                                                                                   
-# with sr.Microphone() as source:                                                                       
-#     print("Ask:")                                                                                   
-#     audio = r.listen(source)
-# try:
-#     print("You asked " + r.recognize_google(audio) + " ?")
-#     question = r.recognize_google(audio)+" ?"
-# except sr.UnknownValueError:
-#     print("Could not understand the question")
-# except sr.RequestError as e:
-#     print("Could not request results; {0}".format(e))
 
-question = "what is there in the picture ?"
+
+a = 0#input("1 for uploadding image (or) 0 for input from cam:")
+if a!=1:
+	cap = cv2.VideoCapture(1)
+	while(True):
+	    # Capture frame-by-frame
+	    ret, frame = cap.read()
+	    question = u'what is there in the picture?'
+	    # Our operations on the frame come here
+	    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+	    if cv2.waitKey(1) & 0xFF == ord('c'):
+	    	image_features = np.zeros((1, 4096))
+	    	im = cv2.resize(frame, (224, 224))
+	    	im = im.transpose((2,0,1))
+	    	im = np.expand_dims(im, axis=0) 
+
+	    	image_features[0,:] = model_vgg.predict(im)[0]
+	    	question_features = get_question_features(question)
+	    	y_output = model_vqa.predict([question_features, image_features])
+	    	warnings.filterwarnings("ignore", category=DeprecationWarning)
+	    	labelencoder = joblib.load(label_encoder_file_name)
+	    	for label in reversed(np.argsort(y_output)[0,-5:]):
+	    		text = "According to me the answer is "+labelencoder.inverse_transform(label)
+	    		speak.Speak(text)
+	    		#tts = gTTS(text=text,lang='en')
+	    		#tts.save("audio.mp3")
+	    		break
+	    	#mixer.music.load('D:/Hack/audio.mp3')
+	    	#mixer.music.play()
+	cv2.imshow('image',frame)
+	cv2.waitKey(0)
+
+
+# When everything done, release the capture
+	cap.release()
+	cv2.destroyAllWindows()
+else:
+	image_file_name = 'test.jpg'
+	question = u"What vehicle is there in the picture?"
+
+	# get the image features
+	image_features = get_image_features(image_file_name)
+	# get the question features
+	question_features = get_question_features(question)
+	y_output = model_vqa.predict([question_features, image_features])
+
+	# This task here is represented as a classification into a 1000 top answers
+	# this means some of the answers were not part of training and thus would 
+	# not show up in the result.
+	# These 1000 answers are stored in the sklearn Encoder class
+
+
+	warnings.filterwarnings("ignore", category=DeprecationWarning)
+	labelencoder = joblib.load(label_encoder_file_name)
+	for label in reversed(np.argsort(y_output)[0,-5:]):
+	    text = "According to me the answer is "+labelencoder.inverse_transform(label)
+	    #tts = gTTS(text=text,lang='en')
+	    #tts.save("audio.mp3")
+	    speak.Speak(text)
+	    break
+	print(question)
+	img = cv2.imread('test.jpg')
+	
+	#os.system('audio.mp3')
+	print(text)
+	cv2.imshow('image',img)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
+# mixer.music.load('D:/Hack/audio.mp3')
+# mixer.music.play()
+# In[13]:
+
+#Test your own images (for now upload exactly 5 images):
+
+#change the lists with your images and questions
+
+#image_file_names = ['47870024_73a4481f7d.jpg', '47871819_db55ac4699.jpg','49553964_cee950f3ba.jpg','50030244_02cd4de372.jpg','53043785_c468d6f931.jpg']
+#questions = [ u"What is the boy doing in the picture?" , u"What are the chilren playing in the picture?", u"What is the man doing?", u"What color is the cat?" , u"What is in this picture?"]
+
+#for i in range(0,5):
+#    question = questions[i]
+#    image_file_name = image_file_names[i]
+#    display(Image(image_file_name))
+#    print(question)
+#    y_output = model_vqa.predict([get_question_features(question), get_image_features(image_file_name)])
+#    for label in reversed(np.argsort(y_output)[0,-5:]):
+#        print(str(round(y_output[0,label]*100,2)).zfill(5), "% ", labelencoder.inverse_transform(label))
+
+'''
+
 import numpy as np
 import cv2
 
@@ -140,7 +224,7 @@ while 1:
     while(True):
         # Capture frame-by-frame
         ret, frame = cap.read()
-        #question = u'what is there in the picture?'
+        question = u'what is there in the picture?'
         # Our operations on the frame come here
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if cv2.waitKey(1) & 0xFF == ord('c'):
@@ -158,6 +242,8 @@ while 1:
         		text = "According to me the answer is "+labelencoder.inverse_transform(label)
         		break
         	speak.Speak(text)
+        	cv2.imshow(frame)
+        	cv2.waitKey(0)
         # Display the resulting frame
         cv2.imshow('frame',gray)
         if cv2.waitKey(1) & 0xFF == ord('q'):
